@@ -4,5 +4,7 @@
 /manager/.settings/*
 /driver/.settings/*
 /server/.settings/*
+.idea
 .project
 .classpath
+*.iml
