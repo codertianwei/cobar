@@ -130,22 +130,22 @@ public class CobarServer {
         ManagerConnectionFactory mf = new ManagerConnectionFactory();
         mf.setCharset(system.getCharset());
         mf.setIdleTimeout(system.getIdleTimeout());
-        manager = new NIOAcceptor(NAME + "Manager", system.getManagerPort(), mf);
+        manager = new NIOAcceptor(NAME + "Manager", system.getServerHost(), system.getManagerPort(), mf);
         manager.setProcessors(processors);
         manager.start();
-        LOGGER.info(manager.getName() + " is started and listening on " + manager.getPort());
+        LOGGER.info(manager.getName() + " is started and listening on " + manager.getHost() + ":" + manager.getPort());
 
         // startup server
         ServerConnectionFactory sf = new ServerConnectionFactory();
         sf.setCharset(system.getCharset());
         sf.setIdleTimeout(system.getIdleTimeout());
-        server = new NIOAcceptor(NAME + "Server", system.getServerPort(), sf);
+        server = new NIOAcceptor(NAME + "Server", system.getServerHost(), system.getServerPort(), sf);
         server.setProcessors(processors);
         server.start();
         timer.schedule(clusterHeartbeat(), 0L, system.getClusterHeartbeatPeriod());
 
         // server started
-        LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
+        LOGGER.info(server.getName() + " is started and listening on " + server.getHost() + ":" + server.getPort());
         LOGGER.info("===============================================");
     }
 

@@ -35,6 +35,9 @@ public final class NIOAcceptor extends Thread {
     private static final Logger LOGGER = Logger.getLogger(NIOAcceptor.class);
     private static final AcceptIdGenerator ID_GENERATOR = new AcceptIdGenerator();
 
+
+
+    private final String host;
     private final int port;
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
@@ -43,17 +46,28 @@ public final class NIOAcceptor extends Thread {
     private int nextProcessor;
     private long acceptCount;
 
-    public NIOAcceptor(String name, int port, FrontendConnectionFactory factory) throws IOException {
+    public NIOAcceptor(String name, String host, int port, FrontendConnectionFactory factory) throws IOException {
         super.setName(name);
         this.port = port;
+        this.host = host;
         this.selector = Selector.open();
         this.serverChannel = ServerSocketChannel.open();
-        this.serverChannel.socket().bind(new InetSocketAddress(port));
+        if(host == null || "*".equals(host)){
+            this.serverChannel.socket().bind(new InetSocketAddress(port));
+        }else{
+            this.serverChannel.socket().bind(new InetSocketAddress(host,port));
+        }
         this.serverChannel.configureBlocking(false);
         this.serverChannel.register(selector, SelectionKey.OP_ACCEPT);
         this.factory = factory;
     }
 
+    public NIOAcceptor(String name, int port, FrontendConnectionFactory factory) throws IOException {
+        this(name,null,port,factory);
+    }
+    public String getHost() {
+        return host;
+    }
     public int getPort() {
         return port;
     }

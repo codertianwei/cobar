@@ -40,6 +40,7 @@ public final class SystemConfig {
     private static final int DEFAULT_PARSER_COMMENT_VERSION = 50148;
     private static final int DEFAULT_SQL_RECORD_COUNT = 10;
 
+    private String serverHost;
     private int serverPort;
     private int managerPort;
     private String charset;
@@ -62,7 +63,10 @@ public final class SystemConfig {
     private int parserCommentVersion;
     private int sqlRecordCount;
 
+
+
     public SystemConfig() {
+        this.serverHost = "127.0.0.1";
         this.serverPort = DEFAULT_PORT;
         this.managerPort = DEFAULT_MANAGER_PORT;
         this.charset = DEFAULT_CHARSET;
@@ -94,6 +98,13 @@ public final class SystemConfig {
         this.charset = charset;
     }
 
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
+    }
     public int getServerPort() {
         return serverPort;
     }
