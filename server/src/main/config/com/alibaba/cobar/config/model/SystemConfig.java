@@ -47,6 +47,7 @@ public final class SystemConfig {
     private int processors;
     private int processorHandler;
     private int processorExecutor;
+    private int processorCommitter;
     private int initExecutor;
     private int timerExecutor;
     private int managerExecutor;
@@ -73,6 +74,7 @@ public final class SystemConfig {
         this.processors = DEFAULT_PROCESSORS;
         this.processorHandler = DEFAULT_PROCESSORS;
         this.processorExecutor = DEFAULT_PROCESSORS;
+        this.processorCommitter = DEFAULT_PROCESSORS;
         this.managerExecutor = DEFAULT_PROCESSORS;
         this.timerExecutor = DEFAULT_PROCESSORS;
         this.initExecutor = DEFAULT_PROCESSORS;
@@ -144,8 +146,16 @@ public final class SystemConfig {
     public void setProcessorExecutor(int processorExecutor) {
         this.processorExecutor = processorExecutor;
     }
+    
+	public int getProcessorCommitter() {
+		return processorCommitter;
+	}
 
-    public int getManagerExecutor() {
+	public void setProcessorCommitter(int processorCommitter) {
+		this.processorCommitter = processorCommitter;
+	}
+
+	public int getManagerExecutor() {
         return managerExecutor;
     }
 
