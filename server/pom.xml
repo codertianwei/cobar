@@ -21,13 +21,13 @@
   <artifactId>cobar-server</artifactId>
   <version>${app.version}</version>
   <packaging>jar</packaging>
-  <name>${artifactId}</name>
+  <name>${project.artifactId}</name>
   <description>The project of cobar-server</description>
   <url>http://code.alibabatech.com/wiki/display/Cobar</url>
 
   <properties>
     <app.encoding>UTF-8</app.encoding>
-    <app.version>1.2.7</app.version>
+    <app.version>1.2.8-SNAPSHOT</app.version>
   </properties>
 
   <dependencies>

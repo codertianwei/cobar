@@ -5,6 +5,14 @@
 /driver/.settings/*
 /server/.settings/*
 .idea
+/manager/classes/
+/driver/classes/
+/server/classes/
 .project
 .classpath
 *.iml
+.DS_Store
+.idea
+cobar-server.iml
+cobar-manager.iml
+cobar-driver.iml
