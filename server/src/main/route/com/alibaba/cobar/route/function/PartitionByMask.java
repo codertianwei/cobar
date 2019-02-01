@@ -3,6 +3,8 @@ package com.alibaba.cobar.route.function;
 import com.alibaba.cobar.config.model.rule.RuleAlgorithm;
 import com.alibaba.cobar.parser.ast.expression.Expression;
 import com.alibaba.cobar.parser.ast.expression.primary.function.FunctionExpression;
+import com.alibaba.cobar.util.StringUtil;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.Map;
  * @author <a href="mailto:dragon829@gmail.com">lostdragon</a>
  */
 public class PartitionByMask extends FunctionExpression implements RuleAlgorithm {
+    private static final Logger log = Logger.getLogger(PartitionByMask.class);
+    
     public PartitionByMask(String functionName, List<Expression> arguments) {
         super(functionName, arguments);
     }
@@ -21,12 +25,26 @@ public class PartitionByMask extends FunctionExpression implements RuleAlgorithm
 
     protected int serverIdMask;
 
-    public void setPartitionCount(String partitionCount) {
-        this.serverIdMask = Integer.parseInt(partitionCount);
+    public int getServerIdMask() {
+        return serverIdMask;
+    }
+
+    public void setServerIdMask(int serverIdMask) {
+        this.serverIdMask = serverIdMask;
+    }
+
+    public void setMask(String mask) {
+        if (mask.startsWith("0x")){
+            this.serverIdMask = Integer.parseInt(mask.substring(2), 16);
+        }else {
+            this.serverIdMask = Integer.parseInt(mask);
+        }
     }
 
     protected int partitionIndex(long hash) {
-        return (int)(hash & serverIdMask);
+        int idx = (int) (hash & serverIdMask);
+//        log.info(String.format("get hash %d mask %x idx %d", hash, serverIdMask, idx));
+        return idx;
     }
 
     @Override
