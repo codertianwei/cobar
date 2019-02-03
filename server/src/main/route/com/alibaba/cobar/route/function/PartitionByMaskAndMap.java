@@ -24,8 +24,13 @@ public class PartitionByMaskAndMap extends PartitionByMask {
     }
 
     protected int indexOffset = 0;
+    protected int partitionMask = 0;
 
-    private String fileMapPath;
+    protected String fileMapPath;
+
+    public void setPartitionMask(int partitionMask) {
+        this.partitionMask = partitionMask;
+    }
 
     public void setIndexOffset(int indexOffset) {
         this.indexOffset = indexOffset;
@@ -40,6 +45,9 @@ public class PartitionByMaskAndMap extends PartitionByMask {
     @Override
     protected int partitionIndex(long hash) {
         int idx = super.partitionIndex(hash);
+        if (partitionMask > 0) {
+            idx = idx & partitionMask;
+        }
         if (app2Partition != null) {
             Integer node = app2Partition.get(idx);
             if (node != null) {
@@ -62,6 +70,7 @@ public class PartitionByMaskAndMap extends PartitionByMask {
         partitionFunc.serverIdMask = getServerIdMask();
         partitionFunc.fileMapPath = fileMapPath;
         partitionFunc.indexOffset = indexOffset;
+        partitionFunc.partitionMask = partitionMask;
         return partitionFunc;
     }
 
