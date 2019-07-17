@@ -8,6 +8,8 @@
 1. 增加ServerIdMask和FileMap的复合路由 <br/>
 2. 优化配置，相同库的表只需配置一次 <br/>
 
+<br/>
+
 ![](https://raw.githubusercontent.com/alibaba/cobar/master/doc/Cobar_logo.png)
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
