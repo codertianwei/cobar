@@ -1,9 +1,12 @@
 
-<h1>修改的点</h1>
-1、增加了绑定指定IP的能力 <br/>
-2、增加了基于int类型字段hash取模的支持（比如分100个库）<br/>
-3、增加基于字符串类型，进行CRC32之后，进行hash取模分库的支持<br/>
+<h1>shusl增加的优化</h1>
+1. 增加了绑定指定IP的能力 <br/>
+2. 增加了基于int类型字段hash取模的支持（比如分100个库）<br/>
+3. 增加基于字符串类型，进行CRC32之后，进行hash取模分库的支持<br/>
 
+<h1>codertianwei增加的优化</h1>
+1. 增加ServerIdMask和FileMap的复合路由 <br/>
+2. 优化配置，相同库的表只需配置一次 <br/>
 
 ![](https://raw.githubusercontent.com/alibaba/cobar/master/doc/Cobar_logo.png)
 
