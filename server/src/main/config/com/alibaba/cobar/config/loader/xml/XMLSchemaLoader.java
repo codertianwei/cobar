@@ -18,19 +18,6 @@
  */
 package com.alibaba.cobar.config.loader.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.alibaba.cobar.config.loader.SchemaLoader;
 import com.alibaba.cobar.config.model.DataNodeConfig;
 import com.alibaba.cobar.config.model.DataSourceConfig;
@@ -42,22 +29,39 @@ import com.alibaba.cobar.config.model.rule.TableRuleConfig;
 import com.alibaba.cobar.config.util.ConfigException;
 import com.alibaba.cobar.config.util.ConfigUtil;
 import com.alibaba.cobar.config.util.ParameterMapping;
+import com.alibaba.cobar.util.CollectionUtil;
 import com.alibaba.cobar.util.SplitUtil;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 @SuppressWarnings("unchecked")
 public class XMLSchemaLoader implements SchemaLoader {
+    private static final Logger LOGGER = Logger.getLogger(XMLSchemaLoader.class);
+
     private final static String DEFAULT_DTD = "/schema.dtd";
     private final static String DEFAULT_XML = "/schema.xml";
+    private final static String TABLES_DTD = "/tables.dtd";
+    private final static String TABLES_XML = "/tables.xml";
 
     private final Map<String, TableRuleConfig> tableRules;
     private final Set<RuleConfig> rules;
     private final Map<String, RuleAlgorithm> functions;
     private final Map<String, DataSourceConfig> dataSources;
     private final Map<String, DataNodeConfig> dataNodes;
+    private final Map<String, Map<String, TableConfig>> schemaTables;
     private final Map<String, SchemaConfig> schemas;
+
+    private final List<String> dataNodeNames = new ArrayList<String>();
+    private String defaultDataNode = null;
 
     public XMLSchemaLoader(String schemaFile, String ruleFile) {
         XMLRuleLoader ruleLoader = new XMLRuleLoader(ruleFile);
@@ -67,6 +71,7 @@ public class XMLSchemaLoader implements SchemaLoader {
         ruleLoader = null;
         this.dataSources = new HashMap<String, DataSourceConfig>();
         this.dataNodes = new HashMap<String, DataNodeConfig>();
+        this.schemaTables = new HashMap<String, Map<String, TableConfig>>();
         this.schemas = new HashMap<String, SchemaConfig>();
         this.load(DEFAULT_DTD, schemaFile == null ? DEFAULT_XML : schemaFile);
     }
@@ -114,6 +119,7 @@ public class XMLSchemaLoader implements SchemaLoader {
             Element root = ConfigUtil.getDocument(dtd, xml).getDocumentElement();
             loadDataSources(root);
             loadDataNodes(root);
+            loadTablesXml(dtdFile);
             loadSchemas(root);
         } catch (ConfigException e) {
             throw e;
@@ -151,7 +157,17 @@ public class XMLSchemaLoader implements SchemaLoader {
             if (schemaElement.hasAttribute("group")) {
                 group = schemaElement.getAttribute("group").trim();
             }
-            Map<String, TableConfig> tables = loadTables(schemaElement);
+            //加载schema下所有tables
+            Map<String, TableConfig> tables = null;
+            if (schemaElement.hasAttribute("tables")) {
+                String tablesName = schemaElement.getAttribute("tables").trim();
+                if (!schemaTables.containsKey(tablesName)) {
+                    throw new ConfigException("schema tables " + name + " missing!");
+                }
+                tables = schemaTables.get(tablesName);
+            } else {
+                tables = loadTables(schemaElement);
+            }
             if (schemas.containsKey(name)) {
                 throw new ConfigException("schema " + name + " duplicated!");
             }
@@ -163,13 +179,61 @@ public class XMLSchemaLoader implements SchemaLoader {
         }
     }
 
+    // load tables.xml
+    private void loadTablesXml(String dtdFile) {
+        InputStream dtd = null;
+        InputStream xml = null;
+
+        try {
+            dtd = XMLSchemaLoader.class.getResourceAsStream(TABLES_DTD);
+            xml = XMLSchemaLoader.class.getResourceAsStream(TABLES_XML);
+            if (xml != null) {
+                Element root = ConfigUtil.getDocument(dtd, xml).getDocumentElement();
+                loadSchemaTables(root);
+            }
+        } catch (ConfigException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ConfigException(e);
+        } finally {
+            if (dtd != null) {
+                try {
+                    dtd.close();
+                } catch (IOException e) {
+                }
+            }
+            if (xml != null) {
+                try {
+                    xml.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
+    // load tables
+    private void loadSchemaTables(Element root) {
+        NodeList list = root.getElementsByTagName("tables");
+        for (int i = 0, n = list.getLength(); i < n; i++) {
+            Element tablesElement = (Element) list.item(i);
+            String name = tablesElement.getAttribute("name");
+            if (schemaTables.containsKey(name)) {
+                throw new ConfigException("schema tables " + name + " duplicated!");
+            }
+            Map<String, TableConfig> tables = loadTables(tablesElement);
+            schemaTables.put(name, tables);
+        }
+    }
+
     private Map<String, TableConfig> loadTables(Element node) {
         Map<String, TableConfig> tables = new HashMap<String, TableConfig>();
         NodeList nodeList = node.getElementsByTagName("table");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Element tableElement = (Element) nodeList.item(i);
             String name = tableElement.getAttribute("name").toUpperCase();
-            String dataNode = tableElement.getAttribute("dataNode");
+            String dataNode = tableElement.hasAttribute("dataNode") ?
+                tableElement.getAttribute("dataNode") :
+                defaultDataNode;
             TableRuleConfig tableRule = null;
             if (tableElement.hasAttribute("rule")) {
                 String ruleName = tableElement.getAttribute("rule");
@@ -264,8 +328,18 @@ public class XMLSchemaLoader implements SchemaLoader {
                     throw new ConfigException("dataNode " + conf.getName() + " duplicated!");
                 }
                 dataNodes.put(conf.getName(), conf);
+                dataNodeNames.add(conf.getName());
             }
         }
+
+        StringBuilder defaultDataNodeStringBuilder = new StringBuilder();
+        String delimiter = "";
+        for (String name : dataNodeNames) {
+            defaultDataNodeStringBuilder.append(delimiter).append(name);
+            delimiter = ",";
+        }
+        defaultDataNode = defaultDataNodeStringBuilder.toString();
+        LOGGER.error("defaultDataNode: " + defaultDataNode);
     }
 
     private void loadDataSources(Element root) {

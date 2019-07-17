@@ -44,8 +44,8 @@ public class PartitionByFileMap extends FunctionExpression implements RuleAlgori
         super(functionName, arguments);
     }
 
-    private Integer defaultNode;
-    private String fileMapPath;
+    protected Integer defaultNode;
+    protected String fileMapPath;
 
     public void setDefaultNode(Integer defaultNode) {
         this.defaultNode = defaultNode;
@@ -55,7 +55,7 @@ public class PartitionByFileMap extends FunctionExpression implements RuleAlgori
         this.fileMapPath = fileMapPath;
     }
 
-    private Map<String, Integer> app2Partition;
+    protected Map<String, Integer> app2Partition;
 
     @Override
     public void init() {

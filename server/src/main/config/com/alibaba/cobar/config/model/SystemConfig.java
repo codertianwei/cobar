@@ -67,7 +67,7 @@ public final class SystemConfig {
 
 
     public SystemConfig() {
-        this.serverHost = "127.0.0.1";
+        this.serverHost = "localserver";
         this.serverPort = DEFAULT_PORT;
         this.managerPort = DEFAULT_MANAGER_PORT;
         this.charset = DEFAULT_CHARSET;

@@ -18,36 +18,33 @@
 <cobar:schema xmlns:cobar="http://cobar.alibaba.com/">
 
   <!-- schema定义 -->
-  <schema name="dbtest" dataNode="dnTest1">
-    <table name="tb2" dataNode="dnTest2,dnTest3" rule="rule1" />
+  <schema name="game_s1" dataNode="dn1">
+    <table name="user_profile" dataNode="dn1,dn2" rule="rule_uid" />
+  </schema>
+  <schema name="game_s2" dataNode="dn2">
+    <table name="user_profile" dataNode="dn1,dn2" rule="rule_uid" />
   </schema>
 
   <!-- 数据节点定义，数据节点由数据源和其他一些参数组织而成。-->
-  <dataNode name="dnTest1">
+  <dataNode name="dn1">
     <property name="dataSource">
-      <dataSourceRef>dsTest[0]</dataSourceRef>
+      <dataSourceRef>ds[0]</dataSourceRef>
     </property>
   </dataNode>
-  <dataNode name="dnTest2">
+  <dataNode name="dn2">
     <property name="dataSource">
-      <dataSourceRef>dsTest[1]</dataSourceRef>
-    </property>
-  </dataNode>
-  <dataNode name="dnTest3">
-    <property name="dataSource">
-      <dataSourceRef>dsTest[2]</dataSourceRef>
+      <dataSourceRef>ds[1]</dataSourceRef>
     </property>
   </dataNode>
 
   <!-- 数据源定义，数据源是一个具体的后端数据连接的表示。-->
-  <dataSource name="dsTest" type="mysql">
+  <dataSource name="ds" type="mysql">
     <property name="location">
-      <location>192.168.0.1:3306/dbtest1</location>
-      <location>192.168.0.1:3306/dbtest2</location>
-      <location>192.168.0.1:3306/dbtest3</location>
+      <location>127.0.0.1:3306/wy_game_test</location>
+      <location>127.0.0.1:3306/wy_game_test_s2</location>
     </property>
-    <property name="user">test</property>
-    <property name="password"></property>
+    <property name="user">root</property>
+    <property name="password">root</property>
     <property name="sqlMode">STRICT_TRANS_TABLES</property>
   </dataSource>
 

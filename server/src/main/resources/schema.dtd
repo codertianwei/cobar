@@ -22,6 +22,8 @@
 <!ATTLIST schema dataNode CDATA #IMPLIED>
 <!ATTLIST schema group CDATA #IMPLIED>
 <!ATTLIST schema keepSqlSchema NMTOKEN #IMPLIED>
+<!ATTLIST schema tables NMTOKEN #IMPLIED>
+
 <!ELEMENT table (property*)>
 <!ATTLIST table name CDATA #REQUIRED>
 <!ATTLIST table dataNode CDATA #REQUIRED>
