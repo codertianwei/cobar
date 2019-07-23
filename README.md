@@ -7,6 +7,7 @@
 <h1>codertianwei增加的优化</h1>
 1. 增加ServerIdMask和FileMap的复合路由 <br/>
 2. 优化配置，相同库的表只需配置一次 <br/>
+3. cobar配置自动生成工具，从数据库读取相应信息，自动生成XML配置<br/>
 
 <br/>
 
